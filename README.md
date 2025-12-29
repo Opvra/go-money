@@ -6,16 +6,35 @@ Decimal is not part of the public API and is never exposed to callers.
 
 ## Example
 
+Example 1: explicit API with error checks.
+
 ```go
 price := money.New(19990, money.Currency{Code: "TRY", Scale: 2, Symbol: "₺"})
 
-invoice, err := price.
-	SubtractPercent(10).
-	AddPercent(18)
+invoice, err := price.SubtractPercent(10)
+if err != nil {
+	log.Fatal(err)
+}
+invoice, err = invoice.AddPercent(18)
 if err != nil {
 	log.Fatal(err)
 }
 
+fmt.Println(invoice.String())
+// ₺212.29
+
+```
+
+Example 2: Pipe for optional fluent chaining.
+
+```go
+invoice, err = money.PipeOf(price).
+	SubtractPercent(10).
+	AddPercent(18).
+	Result()
+if err != nil {
+	log.Fatal(err)
+}
 fmt.Println(invoice.String())
 // ₺212.29
 ```
