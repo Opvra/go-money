@@ -88,6 +88,42 @@ func Compare(a, b int64, scale int32) (int, error) {
 	return da.dec.Cmp(db.dec), nil
 }
 
+// Mul multiplies a minor-unit amount by an integer factor.
+// Example: Mul(1000, 2, 2) -> 2000.
+func Mul(value, factor int64, scale int32) (int64, error) {
+	da, err := newAmount(value, scale)
+	if err != nil {
+		return 0, err
+	}
+	mult, err := decimal.New(factor, 0)
+	if err != nil {
+		return 0, err
+	}
+	out, err := da.multiply(mult)
+	if err != nil {
+		return 0, err
+	}
+	return Round(out.dec, scale)
+}
+
+// Div divides a minor-unit amount by an integer divisor.
+// Example: Div(1000, 2, 2) -> 500.
+func Div(value, divisor int64, scale int32) (int64, error) {
+	da, err := newAmount(value, scale)
+	if err != nil {
+		return 0, err
+	}
+	div, err := decimal.New(divisor, 0)
+	if err != nil {
+		return 0, err
+	}
+	out, err := da.divide(div, scale)
+	if err != nil {
+		return 0, err
+	}
+	return Round(out.dec, scale)
+}
+
 // newAmount wraps minor units into a decimal with the provided scale.
 // Example: newAmount(1050, 2) -> 10.50.
 func newAmount(value int64, scale int32) (amount, error) {
@@ -146,6 +182,16 @@ func (a amount) multiply(mult decimal.Decimal) (amount, error) {
 		return amount{}, fmt.Errorf("scale overflow")
 	}
 	d, err := a.dec.MulExact(mult, scale)
+	if err != nil {
+		return amount{}, err
+	}
+	return amount{dec: d}, nil
+}
+
+// divide divides the amount by a decimal divisor using the target scale.
+// Example: 10.00 / 2 -> 5.00.
+func (a amount) divide(div decimal.Decimal, scale int32) (amount, error) {
+	d, err := a.dec.QuoExact(div, int(scale))
 	if err != nil {
 		return amount{}, err
 	}

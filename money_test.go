@@ -78,6 +78,32 @@ func TestComparisons(t *testing.T) {
 	}
 }
 
+func TestMul(t *testing.T) {
+	usd := Currency{Code: "USD", Scale: 2, Symbol: "$"}
+	m := New(1050, usd)
+
+	out, err := m.Mul(2)
+	if err != nil {
+		t.Fatalf("mul error: %v", err)
+	}
+	if got := out.Amount(); got != 2100 {
+		t.Fatalf("mul amount = %d", got)
+	}
+}
+
+func TestDiv(t *testing.T) {
+	usd := Currency{Code: "USD", Scale: 2, Symbol: "$"}
+	m := New(2100, usd)
+
+	out, err := m.Div(3)
+	if err != nil {
+		t.Fatalf("div error: %v", err)
+	}
+	if got := out.Amount(); got != 700 {
+		t.Fatalf("div amount = %d", got)
+	}
+}
+
 func TestStringFormatting(t *testing.T) {
 	usd := Currency{Code: "USD", Scale: 2, Symbol: "$"}
 	m := New(-105, usd)

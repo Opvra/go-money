@@ -84,6 +84,26 @@ func (m Money) SubtractPercent(percent int64) (Money, error) {
 	return Money{amount: amount, currency: m.currency}, nil
 }
 
+// Mul multiplies the Money amount by an integer factor.
+// Example: New(1000, USD).Mul(2) -> 2000.
+func (m Money) Mul(factor int64) (Money, error) {
+	amount, err := calc.Mul(m.amount, factor, m.currency.Scale)
+	if err != nil {
+		return Money{}, ErrInvalidOperation
+	}
+	return Money{amount: amount, currency: m.currency}, nil
+}
+
+// Div divides the Money amount by an integer divisor.
+// Example: New(1000, USD).Div(2) -> 500.
+func (m Money) Div(divisor int64) (Money, error) {
+	amount, err := calc.Div(m.amount, divisor, m.currency.Scale)
+	if err != nil {
+		return Money{}, ErrInvalidOperation
+	}
+	return Money{amount: amount, currency: m.currency}, nil
+}
+
 // Equal reports whether two Money values are equal and share the same currency.
 // Example: New(500, USD).Equal(New(500, USD)) -> true.
 func (m Money) Equal(x Money) bool {
